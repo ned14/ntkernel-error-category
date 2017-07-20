@@ -66,4 +66,15 @@ if(NOT PROJECT_IS_DEPENDENCY)
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
   )
   add_test(NAME test-hl COMMAND $<TARGET_FILE:test-hl>)
+  
+  add_executable(test-static-view "test/static-view.cpp")
+  target_compile_features(test-static-view PRIVATE cxx_std_17)
+  if(MSVC)
+    target_compile_options(test-static-view PRIVATE /std:c++latest)
+  endif()
+  target_link_libraries(test-static-view PRIVATE ntkernel-error-category::hl)
+  set_target_properties(test-static-view PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+  )
+  add_test(NAME test-static-view COMMAND $<TARGET_FILE:test-static-view>)
 endif()
