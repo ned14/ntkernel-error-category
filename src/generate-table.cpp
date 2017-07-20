@@ -145,6 +145,8 @@ static constexpr std::pair<int, const char *> posixmap[] = {
 
 static constexpr std::pair<NTSTATUS, NTSTATUS> inputs[] = {
 //
+//{0x00000000L, 0x0000ffffL},  //
+//{0x40000000L, 0x4000ffffL},  //
 {0x80000001L, 0x8000ffffL},  //
 {0xC0000001L, 0xC000ffffL}   //
 };
@@ -157,6 +159,7 @@ static inline DWORD win32_error_from_nt_status(NTSTATUS ntstatus)
   DWORD br;
   OVERLAPPED o;
 
+  SetLastError(0);
   o.Internal = ntstatus;
   o.InternalHigh = 0;
   o.Offset = 0;
@@ -196,19 +199,19 @@ int main()
           if(win32code == code)
             win32code = 0;
           std::error_code ec(win32code, std::system_category());
-          int _errc = ec.default_error_condition().value();
+          std::error_condition ecnd = ec.default_error_condition();
           const char *errc = "0";
-          if(_errc != win32code)
+          if(ecnd.category() == std::generic_category())
           {
             for(auto &p : posixmap)
             {
-              if(p.first == _errc)
+              if(p.first == ecnd.value())
                 errc = p.second;
             }
           }
           // Format is:
           // ntstatus,win32code,std::errc,"ntstatusstring"
-          oh << std::hex << "{ 0x" << code << ",0x" << win32code << "," << errc << ",\"";
+          oh << std::hex << "{ static_cast<int>(0x" << code << "),static_cast<int>(0x" << win32code << ")," << errc << ",\"";
           --len;
           if(txt[len - 1] == 10)
             --len;
@@ -218,9 +221,16 @@ int main()
               oh << '\\' << 'n';
             else if(13 != txt[n])
             {
-              oh << txt[n];
-              if(txt[n] == '\\')
+              switch(txt[n])
+              {
+              case '\\':
                 oh << '\\';
+                break;
+              case '"':
+                oh << '\\';
+                break;
+              }
+              oh << txt[n];
             }
           }
           oh << "\"},\n" << std::dec;

@@ -22,20 +22,31 @@ Distributed under the Boost Software License, Version 1.0.
 http://www.boost.org/LICENSE_1_0.txt)
 */
 
-#ifndef NTKERNEL_CATEGORY_HPP
-#define NTKERNEL_CATEGORY_HPP
+#ifndef NTKERNEL_CATEGORY_CONFIG_HPP
+#define NTKERNEL_CATEGORY_CONFIG_HPP
 
-#include "config.hpp"
-
-#include <system_error>
-
-namespace ntkernel_error_category
-{
-  NTKERNEL_ERROR_CATEGORY_API NTKERNEL_ERROR_CATEGORY_INLINE_API const std::error_category &ntkernel_category() noexcept;
-}
+#ifdef NTKERNEL_ERROR_CATEGORY_STATIC
+#define NTKERNEL_ERROR_CATEGORY_API extern
+#else
+#ifdef _WIN32
+#ifdef NTKERNEL_CATEGORY_SOURCE
+#define NTKERNEL_ERROR_CATEGORY_API extern __declspec(dllexport)
+#else
+#define NTKERNEL_ERROR_CATEGORY_API extern
+#endif
+#else
+#ifdef NTKERNEL_CATEGORY_SOURCE
+#define NTKERNEL_ERROR_CATEGORY_API extern __attribute__((visibility("default")))
+#else
+#define NTKERNEL_ERROR_CATEGORY_API extern
+#endif
+#endif
+#endif
 
 #ifdef NTKERNEL_ERROR_CATEGORY_INLINE
-#include "detail/ntkernel_category_impl.ipp"
+#define NTKERNEL_ERROR_CATEGORY_INLINE_API inline
+#else
+#define NTKERNEL_ERROR_CATEGORY_INLINE_API
 #endif
 
 #endif
