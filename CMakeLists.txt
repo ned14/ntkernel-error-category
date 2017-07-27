@@ -19,6 +19,7 @@ if(WIN32)
 endif()
 
 add_library(ntkernel-error-category_dl SHARED "src/ntkernel_category.cpp")
+target_compile_features(ntkernel-error-category_dl PUBLIC cxx_std_11)
 target_include_directories(ntkernel-error-category_dl INTERFACE "include")
 set_target_properties(ntkernel-error-category_dl PROPERTIES
   ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
@@ -28,6 +29,7 @@ set_target_properties(ntkernel-error-category_dl PROPERTIES
 add_library(ntkernel-error-category::dl ALIAS ntkernel-error-category_dl)
 
 add_library(ntkernel-error-category_sl STATIC "src/ntkernel_category.cpp")
+target_compile_features(ntkernel-error-category_sl PUBLIC cxx_std_11)
 target_include_directories(ntkernel-error-category_sl INTERFACE "include")
 target_compile_definitions(ntkernel-error-category_sl PRIVATE NTKERNEL_ERROR_CATEGORY_STATIC)
 set_target_properties(ntkernel-error-category_sl PROPERTIES
@@ -38,6 +40,7 @@ set_target_properties(ntkernel-error-category_sl PROPERTIES
 add_library(ntkernel-error-category::sl ALIAS ntkernel-error-category_sl)
 
 add_library(ntkernel-error-category_hl INTERFACE)
+target_compile_features(ntkernel-error-category_hl INTERFACE cxx_std_11)
 target_include_directories(ntkernel-error-category_hl INTERFACE "include")
 target_compile_definitions(ntkernel-error-category_hl INTERFACE
   NTKERNEL_ERROR_CATEGORY_INLINE
