@@ -32,7 +32,8 @@ http://www.boost.org/LICENSE_1_0.txt)
 #include <Windows.h>
 #endif
 
-static constexpr std::tuple<int, int, int, const char *> table[] = {
+using field = ntkernel_error_category::detail::field;
+static constexpr field table[] = {
 #include "../include/detail/ntkernel-table.ipp"
 };
 
@@ -41,7 +42,46 @@ int main()
   using namespace ntkernel_error_category;
   int retcode = 0;
 
-  constexpr auto table_view = boost::static_views::raw_view(table);
-  constexpr auto ntstatus_to_message_map = make_static_map<2 * sizeof(table) / sizeof(table[0]), 2>(table_view);
+  static constexpr auto table_view = boost::static_views::raw_view(table);
+  static constexpr auto posix_to_ntstatus_map = //
+    boost::static_views::static_map::make_static_map<1, table_view.size()>(  //
+      table_view, //
+    &field::posix, //
+    &field::ntstatus //
+    );
+  static constexpr auto ntstatus_to_posix_map = //
+    boost::static_views::static_map::make_static_map<1, table_view.size()>(  //
+      table_view, //
+      &field::ntstatus, //
+      &field::posix //
+      );
+  static constexpr auto ntstatus_to_message_map = //
+    boost::static_views::static_map::make_static_map<1, table_view.size()>(  //
+      table_view, //
+      &field::ntstatus, //
+      &field::message //
+      );
+  std::cout << "The following NTSTATUS codes are mapped by these POSIX codes:\n";
+  {
+    static constexpr int values[] = {
+      posix_to_ntstatus_map[EACCES],
+      posix_to_ntstatus_map[EAGAIN],
+      posix_to_ntstatus_map[EBUSY],
+      posix_to_ntstatus_map[ENOSYS],
+      posix_to_ntstatus_map[EINVAL],
+      posix_to_ntstatus_map[ENOENT],
+      posix_to_ntstatus_map[ENOMEM],
+      posix_to_ntstatus_map[EEXIST],
+      posix_to_ntstatus_map[ENOLCK],
+      posix_to_ntstatus_map[ENOSPC],
+      posix_to_ntstatus_map[ENODEV],
+      posix_to_ntstatus_map[EXDEV],
+      posix_to_ntstatus_map[ENOTEMPTY],
+      posix_to_ntstatus_map[EMFILE],
+      posix_to_ntstatus_map[ECANCELED]
+    };
+    for(auto &v : values)
+      std::cout << "  " << std::hex << v << std::dec << "(" << ntstatus_to_message_map[v] << ")" << "\n";
+  }
   return retcode;
 }
