@@ -27,6 +27,9 @@ set_target_properties(ntkernel-error-category_dl PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 add_library(ntkernel-error-category::dl ALIAS ntkernel-error-category_dl)
+install(FILES ntkernel-error-category_dl}
+  DESTINATION "lib"
+)
 
 add_library(ntkernel-error-category_sl STATIC "src/ntkernel_category.cpp")
 target_compile_features(ntkernel-error-category_sl PUBLIC cxx_std_11)
@@ -38,6 +41,9 @@ set_target_properties(ntkernel-error-category_sl PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
 )
 add_library(ntkernel-error-category::sl ALIAS ntkernel-error-category_sl)
+install(FILES ntkernel-error-category_sl}
+  DESTINATION "lib"
+)
 
 add_library(ntkernel-error-category_hl INTERFACE)
 target_compile_features(ntkernel-error-category_hl INTERFACE cxx_std_11)
@@ -47,6 +53,12 @@ target_compile_definitions(ntkernel-error-category_hl INTERFACE
   NTKERNEL_ERROR_CATEGORY_STATIC
 )
 add_library(ntkernel-error-category::hl ALIAS ntkernel-error-category_hl)
+
+export(
+  TARGETS ntkernel-error-category_dl ntkernel-error-category_sl ntkernel-error-category_hl
+  FILE "NtKernelErrorCategoryTargets.cmake"
+  EXPORT_LINK_INTERFACE_LIBRARIES
+)
 
 if(NOT PROJECT_IS_DEPENDENCY)
   add_executable(test-dl "test/main.cpp")
