@@ -42,22 +42,22 @@ int main()
   using namespace ntkernel_error_category;
   int retcode = 0;
 
-  static constexpr auto table_view = boost::static_views::raw_view(table);
-  static constexpr auto posix_to_ntstatus_map = //
-    boost::static_views::static_map::make_static_map<1, table_view.size()>(  //
-      table_view, //
-    &field::posix, //
+  constexpr size_t table_size = sizeof(table) / sizeof(table[0]);
+   constexpr auto posix_to_ntstatus_map = //
+    boost::static_views::static_map::make_static_map<1, table_size>(  //
+      boost::static_views::raw_view(table), //
+      &field::posix, //
     &field::ntstatus //
     );
-  static constexpr auto ntstatus_to_posix_map = //
-    boost::static_views::static_map::make_static_map<1, table_view.size()>(  //
-      table_view, //
+   constexpr auto ntstatus_to_posix_map = //
+    boost::static_views::static_map::make_static_map<1, table_size>(  //
+      boost::static_views::raw_view(table), //
       &field::ntstatus, //
       &field::posix //
       );
-  static constexpr auto ntstatus_to_message_map = //
-    boost::static_views::static_map::make_static_map<1, table_view.size()>(  //
-      table_view, //
+  constexpr auto ntstatus_to_message_map = //
+    boost::static_views::static_map::make_static_map<1, table_size>(  //
+      boost::static_views::raw_view(table), //
       &field::ntstatus, //
       &field::message //
       );
