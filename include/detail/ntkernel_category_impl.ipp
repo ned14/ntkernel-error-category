@@ -24,7 +24,7 @@ http://www.boost.org/LICENSE_1_0.txt)
 
 #include "../ntkernel_category.hpp"
 
-#include <string.h>
+#include <cstring>
 
 namespace ntkernel_error_category
 {
@@ -45,11 +45,13 @@ namespace ntkernel_error_category
       for(const field &i : table)
       {
         if(i.ntstatus == ntstatus)
+        {
           return &i;
+        }
       }
       return nullptr;
     }
-  }
+  }  // namespace detail
   class ntkernelcategory : public std::error_category
   {
   public:
@@ -59,20 +61,22 @@ namespace ntkernel_error_category
     {
       const detail::field *f = detail::find_ntstatus(code);
       if(f == nullptr || f->posix == 0)
-        return std::error_condition(code, *this);
-      return std::error_condition(f->posix, std::generic_category());
+      {
+        return {code, *this};
+      }
+      return {f->posix, std::generic_category()};
     }
     // Test equivalence via mapping my code to their code
     virtual bool equivalent(int mycode, const std::error_condition &theircond) const noexcept override final
     {
       // If I'm comparing to myself, its testing equality
-      if(*this == theircond.category() || !strcmp(name(), theircond.category().name()))
+      if(*this == theircond.category() || (strcmp(name(), theircond.category().name()) == 0))
       {
         return theircond.value() == mycode;
       }
 #ifdef _WIN32
       // If I'm comparing win32 to me, that's custom
-      if(std::system_category() == theircond.category() || !strcmp(std::system_category().name(), theircond.category().name()))
+      if(std::system_category() == theircond.category() || (strcmp(std::system_category().name(), theircond.category().name()) == 0))
       {
         const detail::field *f = detail::find_ntstatus(mycode);
         if(f != nullptr && f->win32 == theircond.value())
@@ -82,7 +86,7 @@ namespace ntkernel_error_category
       }
 #endif
       // Fall back onto generic_category testing
-      if(std::generic_category() == theircond.category() || !strcmp(std::generic_category().name(), theircond.category().name()))
+      if(std::generic_category() == theircond.category() || (strcmp(std::generic_category().name(), theircond.category().name()) == 0))
       {
         const detail::field *f = detail::find_ntstatus(mycode);
         if(f != nullptr && f->posix == theircond.value())
@@ -96,13 +100,13 @@ namespace ntkernel_error_category
     virtual bool equivalent(const std::error_code &theircode, int mycond) const noexcept override final
     {
       // If I'm comparing to myself, its testing equality
-      if(*this == theircode.category() || !strcmp(name(), theircode.category().name()))
+      if(*this == theircode.category() || (strcmp(name(), theircode.category().name()) == 0))
       {
         return theircode.value() == mycond;
       }
 #ifdef _WIN32
       // If I'm comparing win32 to me, that's custom
-      if(std::system_category() == theircode.category() || !strcmp(std::system_category().name(), theircode.category().name()))
+      if(std::system_category() == theircode.category() || (strcmp(std::system_category().name(), theircode.category().name()) == 0))
       {
         const detail::field *f = detail::find_ntstatus(mycond);
         if(f != nullptr && f->win32 == theircode.value())
@@ -112,7 +116,7 @@ namespace ntkernel_error_category
       }
 #endif
       // Fall back onto generic_category testing
-      if(std::generic_category() == theircode.category() || !strcmp(std::generic_category().name(), theircode.category().name()))
+      if(std::generic_category() == theircode.category() || (strcmp(std::generic_category().name(), theircode.category().name()) == 0))
       {
         const detail::field *f = detail::find_ntstatus(mycond);
         if(f != nullptr && f->posix == theircode.value())
@@ -125,13 +129,15 @@ namespace ntkernel_error_category
     virtual std::string message(int condition) const override final
     {
       if(condition == 0)
+      {
         return "The operation completed successfully";
+      }
       const detail::field *f = detail::find_ntstatus(condition);
       if(f != nullptr)
       {
         return f->message;
       }
-      switch((unsigned) condition >> 30)
+      switch(static_cast<unsigned>(condition) >> 30)
       {
       case 0:
         return "Unknown success";
@@ -150,4 +156,4 @@ namespace ntkernel_error_category
     static ntkernelcategory c;
     return c;
   }
-}
+}  // namespace ntkernel_error_category
