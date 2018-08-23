@@ -34,7 +34,7 @@ namespace ntkernel_error_category
   NTKERNEL_ERROR_CATEGORY_API NTKERNEL_ERROR_CATEGORY_INLINE_API const std::error_category &ntkernel_category() noexcept;
 }
 
-#ifdef NTKERNEL_ERROR_CATEGORY_INLINE
+#if NTKERNEL_ERROR_CATEGORY_INLINE
 #include "detail/ntkernel_category_impl.ipp"
 #endif
 

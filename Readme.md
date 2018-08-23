@@ -11,9 +11,9 @@ on Windows (i.e. the `GetLastError()` error code space).
 - Implements mapped comparisons to error conditions of `std::generic_category`
 on all platforms (i.e. the POSIX `errno` error code space).
 - Comes in three implementation variants:
-  - Header-only table (`NTKERNEL_ERROR_CATEGORY_INLINE`).
-  - Static library table (`NTKERNEL_ERROR_CATEGORY_STATIC`).
-  - Shared library table.
+  - Header-only table (`NTKERNEL_ERROR_CATEGORY_INLINE=1`).
+  - Static library table (`NTKERNEL_ERROR_CATEGORY_STATIC=1`).
+  - Shared library table (the default).
   
 The default of `NTKERNEL_ERROR_CATEGORY_STATIC` and `NTKERNEL_ERROR_CATEGORY_INLINE`
 both NOT being defined means that the shared library table is the default. As

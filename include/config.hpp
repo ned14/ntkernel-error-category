@@ -25,7 +25,7 @@ http://www.boost.org/LICENSE_1_0.txt)
 #ifndef NTKERNEL_CATEGORY_CONFIG_HPP
 #define NTKERNEL_CATEGORY_CONFIG_HPP
 
-#ifdef NTKERNEL_ERROR_CATEGORY_STATIC
+#if NTKERNEL_ERROR_CATEGORY_STATIC
 #define NTKERNEL_ERROR_CATEGORY_API extern
 #else
 #ifdef _WIN32
@@ -43,8 +43,13 @@ http://www.boost.org/LICENSE_1_0.txt)
 #endif
 #endif
 
-#ifdef NTKERNEL_ERROR_CATEGORY_INLINE
+#if NTKERNEL_ERROR_CATEGORY_INLINE
 #define NTKERNEL_ERROR_CATEGORY_INLINE_API inline
+#ifdef _MSC_VER
+#pragma message("WARNING: Defining custom error code category ntkernel_category() via header only form is unreliable! Semantic comparisons will break! Define NTKERNEL_ERROR_CATEGORY_INLINE to 0 and only ever link in ntkernel_category() from a prebuilt shared library to avoid this problem.")
+#else
+#warning WARNING: Defining custom error code category ntkernel_category() via header only form is unreliable! Semantic comparisons will break! Define NTKERNEL_ERROR_CATEGORY_INLINE to 0 and only ever link in ntkernel_category() from a prebuilt shared library to avoid this problem.
+#endif
 #else
 #define NTKERNEL_ERROR_CATEGORY_INLINE_API
 #endif
