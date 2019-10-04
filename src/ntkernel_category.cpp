@@ -23,4 +23,4 @@ http://www.boost.org/LICENSE_1_0.txt)
 */
 
 #define NTKERNEL_CATEGORY_SOURCE
-#include "../include/detail/ntkernel_category_impl.ipp"
+#include "ntkernel-error-category/detail/ntkernel_category_impl.ipp"
