@@ -3,11 +3,11 @@ cmake_minimum_required(VERSION 3.1 FATAL_ERROR)
 project(ntkernel-error-category VERSION 1.0 LANGUAGES CXX)
 enable_testing()
 include(GNUInstallDirs)
-if(NOT DEFINED PROJECT_IS_DEPENDENCY)
+if(NOT DEFINED ntkernel-error-category_IS_DEPENDENCY)
   if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    set(PROJECT_IS_DEPENDENCY OFF)
+    set(ntkernel-error-category_IS_DEPENDENCY OFF)
   else()
-    set(PROJECT_IS_DEPENDENCY ON)
+    set(ntkernel-error-category_IS_DEPENDENCY ON)
   endif()
 endif()
 
@@ -129,7 +129,7 @@ install(EXPORT ${PROJECT_NAME}Exports
 )
 
 
-if(NOT PROJECT_IS_DEPENDENCY)
+if(NOT ntkernel-error-category_IS_DEPENDENCY AND (NOT DEFINED BUILD_TESTING OR BUILD_TESTING))
   add_executable(test-dl "test/main.cpp")
   target_link_libraries(test-dl PRIVATE ${PROJECT_NAME}::dl)
   set_target_properties(test-dl PROPERTIES
