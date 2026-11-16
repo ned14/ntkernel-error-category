@@ -151,6 +151,18 @@ static constexpr std::pair<NTSTATUS, NTSTATUS> inputs[] = {
 {0xC0000001L, 0xC000ffffL}   //
 };
 
+// Windows' own Win32 to errno mapping is lossy. It leaves the pipe teardown statuses with
+// no POSIX code at all, which means an `error_code` holding e.g. STATUS_PIPE_BROKEN never
+// compares equal to `errc::broken_pipe` even though the category does compare semantically.
+// Supply the obvious mappings explicitly, keyed by NTSTATUS.
+// clang-format off
+static constexpr std::pair<int, int> posixoverrides[] = {
+  { static_cast<int>(0xc000014b), EPIPE },      // STATUS_PIPE_BROKEN: the other end is gone
+  { static_cast<int>(0xc00000b0), ENOTCONN },   // STATUS_PIPE_DISCONNECTED
+  { static_cast<int>(0xc00000b1), EPIPE },      // STATUS_PIPE_CLOSING: the other end is closing
+};
+// clang-format on
+
 typedef NTSTATUS(NTAPI *RtlUnicodeToUTF8N_t)(_Out_ PCHAR UTF8StringDestination, _In_ ULONG UTF8StringMaxByteCount, _Out_ PULONG UTF8StringActualByteCount, _In_ PCWCH UnicodeStringSource, _In_ ULONG UnicodeStringByteCount);
 static RtlUnicodeToUTF8N_t RtlUnicodeToUTF8N;
 
@@ -200,12 +212,18 @@ int main()
             win32code = 0;
           std::error_code ec(win32code, std::system_category());
           std::error_condition ecnd = ec.default_error_condition();
+          int posixcode = (ecnd.category() == std::generic_category()) ? ecnd.value() : 0;
+          for(auto &o : posixoverrides)
+          {
+            if(o.first == static_cast<int>(code))
+              posixcode = o.second;
+          }
           const char *errc = "0";
-          if(ecnd.category() == std::generic_category())
+          if(posixcode != 0)
           {
             for(auto &p : posixmap)
             {
-              if(p.first == ecnd.value())
+              if(p.first == posixcode)
                 errc = p.second;
             }
           }
